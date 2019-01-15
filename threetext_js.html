@@ -1,0 +1,113 @@
+<!--
+Copyright 2016 Google Inc. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Paul Lewis" />
+  <meta name="viewport" content="width=device-width">
+  <title></title>
+  <style>
+    html, body {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script src="js/three.js"></script>
+  <script>
+  var camera, scene, renderer;
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  var particles, particleSystem;
+  var particleCount = 5000;
+
+  var init = function() {
+  	//create a new camera; camera controls pos/rotation/FOV
+  	//PerspectiveCamera(fieldOfView, aspectRatio, renderNearLimit, renderFarLimit)
+  	camera = new THREE.PerspectiveCamera(80, width/height, 1, 4000);
+
+  	// move the camera back from origin (0,0,0)
+  	// all objects are initially created at (0,0,0)
+  	camera.position.z = 3000;
+
+  	//add camera to a scene; scene contains all 3D data
+  	scene = new THREE.Scene();
+  	scene.add(camera);
+
+  	//canvas renderer figures out what's in the scene, draws it.
+  	renderer = new THREE.WebGLRenderer();
+  	renderer.setSize(width, height);
+
+  	document.body.appendChild( renderer.domElement );
+
+  	makeParticles();
+  }
+
+  var makeParticles = function() {
+  	//definte what the particles look like
+  	var material = new THREE.PointCloudMaterial( {
+  			color: 0xffffff,
+  			size: 20
+  		});
+
+  	//our individual particles
+  	particles = new THREE.Geometry();
+
+  	//x y z coordinates
+  	var pX, pY, pZ;
+
+  	//define each particle's position and add it to the system
+  	for (var i = 0; i < particleCount; i++) {
+  		pX = Math.random() * 3000 - 1500;
+  		pY = Math.random() * 3000 - 1500;
+  		pZ = Math.random() * 3000 - 1500;
+  		particle = new THREE.Vector3(pX, pY, pZ);
+  		particles.vertices.push(particle);
+  	}
+  	// console.log(particles);
+
+  	//big bang: create the space, pass it the particles and what the particles look like
+  	//our system of particles
+  	particleSystem = new THREE.PointCloud(particles, material);
+  	// particleSystem.sortParticles = true;
+
+  	//add it to the scene
+  	scene.add(particleSystem);
+  }
+
+  var render = function() {
+  	//access the PointCloud object
+  	var object = scene.children[1];
+
+  	//set rotation
+  	object.rotation.x -= Math.random()*0.001-0.005;
+  	object.rotation.y -= Math.random()*0.001-0.005;
+  	object.rotation.z -= Math.random()*0.001-0.005;
+
+  	renderer.render(scene, camera);
+  }
+
+  var animateParticles = function() {
+  	requestAnimationFrame (animateParticles);
+  	render();
+  }
+
+  window.onload = function() {
+  	init();
+  	animateParticles();
+  };
+  </script>
+</body>
+</html>
